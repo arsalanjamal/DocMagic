@@ -1,8 +1,8 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS  # Updated import for FAISS
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
@@ -106,8 +106,12 @@ def summarize_document(text_chunks):
         combine_prompt=combine_prompt_template
     )
     
+    # Use text chunks instead of summaries directly
     summaries = [chain({"input_documents": [chunk]}, return_only_outputs=True)["output_text"] for chunk in text_chunks]
-    return "\n\n".join(summaries)
+    
+    # Combine summaries into a final output
+    final_summary = "\n\n".join(summaries)
+    return final_summary
 
 # Generate citation in a standard format
 def generate_citation(doc_title, author, year):
