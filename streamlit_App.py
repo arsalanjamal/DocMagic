@@ -106,8 +106,11 @@ def summarize_document(text_chunks):
         combine_prompt=combine_prompt_template
     )
     
-    # Use text chunks instead of summaries directly
-    summaries = [chain({"input_documents": [chunk]}, return_only_outputs=True)["output_text"] for chunk in text_chunks]
+    # Ensure that text chunks are correctly processed through the chain
+    summaries = []
+    for chunk in text_chunks:
+        chunk_summary = chain({"input_documents": [chunk]}, return_only_outputs=True)
+        summaries.append(chunk_summary["output_text"])
     
     # Combine summaries into a final output
     final_summary = "\n\n".join(summaries)
