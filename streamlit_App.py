@@ -3,13 +3,11 @@ from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.vectorstores import FAISS
-# from langchain.vectorstores.faiss import FAISS
-
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 import google.generativeai as genai
-#import os
+import os
 
 # Set up Streamlit page
 st.set_page_config(page_title="Research Assistant", layout="wide")
@@ -82,13 +80,32 @@ def answer_user_question(user_question, api_key):
 # Summarize the uploaded PDF document
 def summarize_document(text_chunks):
     model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, google_api_key=api_key)
-    summary_prompt = """
-    Summarize the following content briefly for a general understanding:\n
-    Content:\n {content}\n
+    
+    # Define separate prompts for map and combine stages
+    map_prompt = """
+    Summarize the following text snippet for key insights.
+    
+    Text:\n {text}\n
     Summary:
     """
-    summary_template = PromptTemplate(template=summary_prompt, input_variables=["content"])
-    chain = load_qa_chain(model, chain_type="map_reduce", prompt=summary_template)
+    combine_prompt = """
+    Based on the following summaries, generate a cohesive overview.
+    
+    Summaries:\n {text}\n
+    Overall Summary:
+    """
+    
+    map_prompt_template = PromptTemplate(template=map_prompt, input_variables=["text"])
+    combine_prompt_template = PromptTemplate(template=combine_prompt, input_variables=["text"])
+    
+    # Load the map_reduce chain with separate map and combine prompts
+    chain = load_qa_chain(
+        model,
+        chain_type="map_reduce",
+        map_prompt=map_prompt_template,
+        combine_prompt=combine_prompt_template
+    )
+    
     summaries = [chain({"input_documents": [chunk]}, return_only_outputs=True)["output_text"] for chunk in text_chunks]
     return "\n\n".join(summaries)
 
