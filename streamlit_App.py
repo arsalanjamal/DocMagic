@@ -88,6 +88,7 @@ def answer_user_question(user_question, api_key):
     st.write("Answer: ", response["output_text"])
 
 # Summarize the uploaded PDF document
+
 def summarize_document(text_chunks):
     model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, google_api_key=api_key)
     
@@ -101,13 +102,13 @@ def summarize_document(text_chunks):
     combine_prompt = """
     Based on the following summaries, generate a cohesive overview.
     
-    Summaries:\n {text}\n
+    Summaries:\n {summaries}\n
     Overall Summary:
     """
     
     map_prompt_template = PromptTemplate(template=map_prompt, input_variables=["text"])
-    combine_prompt_template = PromptTemplate(template=combine_prompt, input_variables=["text"])
-    
+    combine_prompt_template = PromptTemplate(template=combine_prompt, input_variables=["summaries"])
+
     # Load the map_reduce chain with separate map and combine prompts
     chain = load_qa_chain(
         model,
