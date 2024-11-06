@@ -13,13 +13,13 @@ import os
 st.set_page_config(page_title="Research Assistant", layout="wide")
 
 st.markdown("""
-## Research Assistant: Get insights, summaries, and citations from your research papers
+## Research Assistant: Get insights and summaries from your research papers
 
-This assistant helps you gain insights, retrieve key information, and generate citations from uploaded research papers. Upload your papers, ask questions, and get reliable, contextually relevant answers quickly.
+This assistant helps you gain insights and retrieve key information from uploaded research papers. Upload your papers, ask questions, and get reliable, contextually relevant answers quickly.
 
 ### Key Features:
 1. **Detailed Document Search**: Allows you to search within uploaded papers.
-2. **Citation Generator**: Generates citations for easy reference.
+2. **Interactive Summaries**: Generate insights and summaries from your research documents.
 
 ### Steps to Use:
 1. **Enter Your Google API Key**: Obtain it at https://makersuite.google.com/app/apikey.
@@ -86,10 +86,6 @@ def answer_user_question(user_question, api_key):
     # Display the answer
     st.write("Answer: ", response["output_text"])
 
-# Generate citation in a standard format
-def generate_citation(doc_title, author, year):
-    return f"{author} ({year}). *{doc_title}*. Retrieved from Doc Magic Research Assistant."
-
 # Main Streamlit App
 def main():
     st.header("Research Assistant 📚")
@@ -107,11 +103,6 @@ def main():
                 text_chunks = get_text_chunks(raw_text)
                 get_vector_store(text_chunks, api_key)
                 st.success("Processing complete!")
-                
-                # Example citation
-                example_citation = generate_citation("Sample Document Title", "Author Name", "2023")
-                st.subheader("Example Citation:")
-                st.write(example_citation)
     
     # If question is entered, provide answer
     if user_question and api_key:
