@@ -19,8 +19,7 @@ This assistant helps you gain insights, retrieve key information, and generate c
 
 ### Key Features:
 1. **Detailed Document Search**: Allows you to search within uploaded papers.
-2. **Document Summarization**: Provides summaries for easier understanding.
-3. **Citation Generator**: Generates citations for easy reference.
+2. **Citation Generator**: Generates citations for easy reference.
 
 ### Steps to Use:
 1. **Enter Your Google API Key**: Obtain it at https://makersuite.google.com/app/apikey.
@@ -87,46 +86,6 @@ def answer_user_question(user_question, api_key):
     # Display the answer
     st.write("Answer: ", response["output_text"])
 
-# Summarize the uploaded PDF document
-
-def summarize_document(text_chunks):
-    model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, google_api_key=api_key)
-    
-    # Define separate prompts for map and combine stages
-    map_prompt = """
-    Summarize the following text snippet for key insights.
-    
-    Text:\n {text}\n
-    Summary:
-    """
-    combine_prompt = """
-    Based on the following summaries, generate a cohesive overview.
-    
-    Summaries:\n {summaries}\n
-    Overall Summary:
-    """
-    
-    map_prompt_template = PromptTemplate(template=map_prompt, input_variables=["text"])
-    combine_prompt_template = PromptTemplate(template=combine_prompt, input_variables=["summaries"])
-
-    # Load the map_reduce chain with separate map and combine prompts
-    chain = load_qa_chain(
-        model,
-        chain_type="map_reduce",
-        map_prompt=map_prompt_template,
-        combine_prompt=combine_prompt_template
-    )
-    
-    # Ensure that text chunks are correctly processed through the chain
-    summaries = []
-    for chunk in text_chunks:
-        chunk_summary = chain({"input_documents": [chunk]}, return_only_outputs=True)
-        summaries.append(chunk_summary["output_text"])
-    
-    # Combine summaries into a final output
-    final_summary = "\n\n".join(summaries)
-    return final_summary
-
 # Generate citation in a standard format
 def generate_citation(doc_title, author, year):
     return f"{author} ({year}). *{doc_title}*. Retrieved from Document Genie Research Assistant."
@@ -148,11 +107,6 @@ def main():
                 text_chunks = get_text_chunks(raw_text)
                 get_vector_store(text_chunks, api_key)
                 st.success("Processing complete!")
-                
-                # Summarize the document
-                document_summary = summarize_document(text_chunks)
-                st.subheader("Document Summary:")
-                st.write(document_summary)
                 
                 # Example citation
                 example_citation = generate_citation("Sample Document Title", "Author Name", "2023")
