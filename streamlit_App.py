@@ -9,7 +9,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 import google.generativeai as genai
-import os
+#import os
 
 # Set up Streamlit page
 st.set_page_config(page_title="Research Assistant", layout="wide")
