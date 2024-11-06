@@ -8,7 +8,6 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 import google.generativeai as genai
 import os
-vector_store = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
 
 # Set up Streamlit page
 st.set_page_config(page_title="Research Assistant", layout="wide")
@@ -72,10 +71,20 @@ def get_conversational_chain():
 # Function to answer user questions
 def answer_user_question(user_question, api_key):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=api_key)
-    new_db = FAISS.load_local("faiss_index", embeddings)
-    docs = new_db.similarity_search(user_question)
+    
+    # Load the vector store (FAISS index) and allow dangerous deserialization
+    vector_store = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
+    
+    # Perform similarity search to find relevant documents
+    docs = vector_store.similarity_search(user_question)
+    
+    # Get the conversational chain for answering the question
     chain = get_conversational_chain()
+    
+    # Get the response from the chain
     response = chain({"input_documents": docs, "question": user_question}, return_only_outputs=True)
+    
+    # Display the answer
     st.write("Answer: ", response["output_text"])
 
 # Summarize the uploaded PDF document
