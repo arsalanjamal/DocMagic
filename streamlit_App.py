@@ -88,7 +88,7 @@ def answer_user_question(user_question, api_key):
 
 # Generate citation in a standard format
 def generate_citation(doc_title, author, year):
-    return f"{author} ({year}). *{doc_title}*. Retrieved from Document Genie Research Assistant."
+    return f"{author} ({year}). *{doc_title}*. Retrieved from Doc Magic Research Assistant."
 
 # Main Streamlit App
 def main():
