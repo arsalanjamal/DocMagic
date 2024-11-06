@@ -8,6 +8,7 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 import google.generativeai as genai
 import os
+from transformers import pipeline
 
 # Set up Streamlit page
 st.set_page_config(page_title="Research Assistant", layout="wide")
@@ -20,15 +21,20 @@ This assistant helps you gain insights and retrieve key information from uploade
 ### Key Features:
 1. **Detailed Document Search**: Allows you to search within uploaded papers.
 2. **Interactive Question-Answering**: Get answers based on the content of your research documents.
+3. **Summarization**: Summarize lengthy documents to gain key insights quickly.
 
 ### Steps to Use:
 1. **Enter Your Google API Key**: Obtain it at https://makersuite.google.com/app/apikey.
 2. **Upload PDF Files**: Upload academic or research PDFs to process.
 3. **Ask Your Question**: Get detailed answers based on the content.
+4. **Summarize Your Research**: Summarize the content of your uploaded research papers.
 """)
 
 # API Key input for user
 api_key = st.text_input("Enter your Google API Key:", type="password", key="api_key_input")
+
+# Summarization pipeline setup
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 # Helper Functions
 
@@ -86,6 +92,12 @@ def answer_user_question(user_question, api_key):
     # Display the answer
     st.write("Answer: ", response["output_text"])
 
+# Function for text summarization
+def summarize_text(text):
+    # Perform text summarization using the BART model
+    summary = summarizer(text, max_length=200, min_length=50, do_sample=False)
+    return summary[0]['summary_text']
+
 # Main Streamlit App
 def main():
     st.header("Research Assistant 📚")
@@ -109,6 +121,17 @@ def main():
     # If the user has entered a question, process and provide the answer
     if user_question and api_key:
         answer_user_question(user_question, api_key)
+    
+    # Summarize uploaded documents if a user wants
+    if pdf_docs:
+        if st.button("Summarize Documents", key="summarize_button"):
+            with st.spinner("Summarizing..."):
+                # Extract text from uploaded PDFs
+                raw_text = get_pdf_text(pdf_docs)
+                # Get the summary
+                summary = summarize_text(raw_text)
+                st.subheader("Summary of Documents:")
+                st.write(summary)
 
 if __name__ == "__main__":
     main()
