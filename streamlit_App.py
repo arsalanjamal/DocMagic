@@ -13,13 +13,13 @@ import os
 st.set_page_config(page_title="Research Assistant", layout="wide")
 
 st.markdown("""
-## Research Assistant: Get insights and summaries from your research papers
+## Research Assistant: Get insights from your research papers
 
 This assistant helps you gain insights and retrieve key information from uploaded research papers. Upload your papers, ask questions, and get reliable, contextually relevant answers quickly.
 
 ### Key Features:
 1. **Detailed Document Search**: Allows you to search within uploaded papers.
-2. **Interactive Summaries**: Generate insights and summaries from your research documents.
+2. **Interactive Question-Answering**: Get answers based on the content of your research documents.
 
 ### Steps to Use:
 1. **Enter Your Google API Key**: Obtain it at https://makersuite.google.com/app/apikey.
@@ -27,12 +27,12 @@ This assistant helps you gain insights and retrieve key information from uploade
 3. **Ask Your Question**: Get detailed answers based on the content.
 """)
 
-# API Key
+# API Key input for user
 api_key = st.text_input("Enter your Google API Key:", type="password", key="api_key_input")
 
 # Helper Functions
 
-# Extract text from PDF
+# Extract text from uploaded PDF files
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
@@ -99,12 +99,14 @@ def main():
         pdf_docs = st.file_uploader("Upload your PDF Files", accept_multiple_files=True, key="pdf_uploader")
         if st.button("Submit & Process", key="process_button") and api_key:
             with st.spinner("Processing..."):
+                # Extract text from uploaded PDFs and split it into chunks
                 raw_text = get_pdf_text(pdf_docs)
                 text_chunks = get_text_chunks(raw_text)
+                # Generate and store vector embeddings
                 get_vector_store(text_chunks, api_key)
                 st.success("Processing complete!")
     
-    # If question is entered, provide answer
+    # If the user has entered a question, process and provide the answer
     if user_question and api_key:
         answer_user_question(user_question, api_key)
 
