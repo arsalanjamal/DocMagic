@@ -41,6 +41,11 @@ def get_pdf_text(pdf_docs):
             text += page.extract_text()
     return text
 
+# Highlight keywords in text
+def highlight_keywords(text, query):
+    highlighted_text = text.replace(query, f"<mark>{query}</mark>")
+    return highlighted_text
+
 # Split text into chunks
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
@@ -83,8 +88,11 @@ def answer_user_question(user_question, api_key):
     # Get the response from the chain
     response = chain({"input_documents": docs, "question": user_question}, return_only_outputs=True)
     
-    # Display the answer
-    st.write("Answer: ", response["output_text"])
+    # Highlight the keywords in the response
+    highlighted_answer = highlight_keywords(response["output_text"], user_question)
+    
+    # Display the answer with highlighted keywords
+    st.markdown(f"Answer: {highlighted_answer}", unsafe_allow_html=True)
 
 # Generate citation in a standard format
 def generate_citation(doc_title, author, year):
